@@ -1,16 +1,20 @@
 import cv2
 import numpy as np
 import sys
+import pygame
 from hand_detector import HandDetector
 from gesture_controller import GestureController
+from racing_game import RacingGame
 
 class GestureToKeyboardApp:
     def __init__(self):
         """Initialize the gesture-to-keyboard application."""
         self.hand_detector = HandDetector()
         self.gesture_controller = GestureController()
+        self.racing_game = RacingGame()
         self.cap = None
         self.running = False
+        self.current_game = "racing"  # Default to racing game
         
     def initialize_camera(self) -> bool:
         """Initialize the webcam."""
@@ -32,7 +36,7 @@ class GestureToKeyboardApp:
             return False
     
     def draw_debug_overlay(self, frame: np.ndarray, index_finger_pos: tuple, 
-                          screen_region: str, is_fist: bool) -> np.ndarray:
+                          screen_region: str, is_fist: bool, hand_angle: float = 0.0) -> np.ndarray:
         """
         Draw debug overlay on the frame.
         
@@ -69,16 +73,33 @@ class GestureToKeyboardApp:
         cv2.putText(frame, f"Region: {screen_region.upper()}", (w - 200, 30), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, region_color, 2)
         
+        # Draw hand angle for steering wheel
+        cv2.putText(frame, f"Hand Angle: {hand_angle:.1f}°", (w - 200, 60), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+        
         if is_fist:
-            cv2.putText(frame, "FIST DETECTED", (w - 200, 60), 
+            cv2.putText(frame, "FIST DETECTED", (w - 200, 90), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         
-        # Draw instructions
-        cv2.putText(frame, "Move hand left/right to control paddle", (10, h - 60), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        cv2.putText(frame, "Make fist to press SPACE", (10, h - 30), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        cv2.putText(frame, "Press 'q' to quit", (10, h - 10), 
+        # Draw current game
+        cv2.putText(frame, f"Game: {self.current_game.upper()}", (w - 200, 120), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+        
+        # Draw instructions based on current game
+        if self.current_game == "racing":
+            cv2.putText(frame, "Rotate hand left/right to steer", (10, h - 90), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, "Open hand to accelerate (W)", (10, h - 60), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, "Make fist to brake (S)", (10, h - 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        else:
+            cv2.putText(frame, "Move hand left/right to control paddle", (10, h - 60), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, "Make fist to press SPACE", (10, h - 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        
+        cv2.putText(frame, "Press 'q' to quit, 'r' for racing, 'p' for pong", (10, h - 10), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
         
         return frame
@@ -107,33 +128,54 @@ class GestureToKeyboardApp:
                 frame = cv2.flip(frame, 1)
                 
                 # Detect hand and get gesture information
-                index_finger_pos, is_fist, annotated_frame = self.hand_detector.detect_hand(frame)
+                index_finger_pos, is_fist, annotated_frame, hand_angle = self.hand_detector.detect_hand(frame)
                 
                 # Determine screen region
                 screen_region = 'middle'  # Default
                 if index_finger_pos:
                     x_pos = index_finger_pos[0]
                     screen_region = self.hand_detector.get_screen_region(x_pos, frame.shape[1])
-                    
-                    # Handle the gesture
-                    self.gesture_controller.handle_gesture(screen_region, is_fist)
+                
+                # Handle gesture based on current game
+                if self.current_game == "racing":
+                    # Send gesture data to racing game
+                    gesture_data = {
+                        'index_finger_pos': index_finger_pos,
+                        'is_fist': is_fist,
+                        'hand_angle': hand_angle,
+                        'screen_region': screen_region
+                    }
+                    self.racing_game.handle_gesture(gesture_data)
                 else:
-                    # No hand detected, release all keys
-                    self.gesture_controller.release_all_keys()
+                    # Original gesture controller for other games
+                    if index_finger_pos:
+                        self.gesture_controller.handle_gesture(screen_region, is_fist)
+                    else:
+                        self.gesture_controller.release_all_keys()
                 
                 # Draw debug overlay
                 debug_frame = self.draw_debug_overlay(
-                    annotated_frame, index_finger_pos, screen_region, is_fist
+                    annotated_frame, index_finger_pos, screen_region, is_fist, hand_angle
                 )
                 
                 # Display the frame
                 cv2.imshow('Gesture Controller', debug_frame)
                 
-                # Check for quit command
+                # Check for quit command and game switching
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
                     self.running = False
                 elif key == ord('r'):
+                    # Switch to racing game
+                    self.current_game = "racing"
+                    self.gesture_controller.release_all_keys()
+                    print("Switched to Racing Game")
+                elif key == ord('p'):
+                    # Switch to pong game
+                    self.current_game = "pong"
+                    self.gesture_controller.release_all_keys()
+                    print("Switched to Pong Game")
+                elif key == ord(' '):
                     # Reset all keys
                     self.gesture_controller.release_all_keys()
                     print("Reset: All keys released")
