@@ -1,0 +1,166 @@
+import cv2
+import numpy as np
+import sys
+from hand_detector import HandDetector
+from gesture_controller import GestureController
+
+class GestureToKeyboardApp:
+    def __init__(self):
+        """Initialize the gesture-to-keyboard application."""
+        self.hand_detector = HandDetector()
+        self.gesture_controller = GestureController()
+        self.cap = None
+        self.running = False
+        
+    def initialize_camera(self) -> bool:
+        """Initialize the webcam."""
+        try:
+            self.cap = cv2.VideoCapture(0)
+            if not self.cap.isOpened():
+                print("Error: Could not open webcam")
+                return False
+            
+            # Set camera properties for better performance
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            self.cap.set(cv2.CAP_PROP_FPS, 30)
+            
+            print("Camera initialized successfully")
+            return True
+        except Exception as e:
+            print(f"Error initializing camera: {e}")
+            return False
+    
+    def draw_debug_overlay(self, frame: np.ndarray, index_finger_pos: tuple, 
+                          screen_region: str, is_fist: bool) -> np.ndarray:
+        """
+        Draw debug overlay on the frame.
+        
+        Args:
+            frame: Input frame
+            index_finger_pos: (x, y) position of index finger
+            screen_region: Current screen region ('left', 'middle', 'right')
+            is_fist: Whether hand is in fist position
+            
+        Returns:
+            Frame with debug overlay
+        """
+        h, w = frame.shape[:2]
+        
+        # Draw screen thirds (vertical lines for left/right)
+        third = w // 3
+        cv2.line(frame, (third, 0), (third, h), (0, 255, 0), 2)
+        cv2.line(frame, (2 * third, 0), (2 * third, h), (0, 255, 0), 2)
+        
+        # Add region labels
+        cv2.putText(frame, "LEFT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, "MIDDLE", (third + 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, "RIGHT", (2 * third + 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        
+        # Draw index finger position
+        if index_finger_pos:
+            x, y = index_finger_pos
+            cv2.circle(frame, (x, y), 10, (0, 0, 255), -1)
+            cv2.putText(frame, f"Finger: ({x}, {y})", (x + 15, y - 15), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        
+        # Draw current region and gesture info
+        region_color = (0, 255, 0) if screen_region != 'middle' else (255, 255, 255)
+        cv2.putText(frame, f"Region: {screen_region.upper()}", (w - 200, 30), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, region_color, 2)
+        
+        if is_fist:
+            cv2.putText(frame, "FIST DETECTED", (w - 200, 60), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        
+        # Draw instructions
+        cv2.putText(frame, "Move hand left/right to control paddle", (10, h - 60), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        cv2.putText(frame, "Make fist to press SPACE", (10, h - 30), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        cv2.putText(frame, "Press 'q' to quit", (10, h - 10), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        
+        return frame
+    
+    def run(self):
+        """Main application loop."""
+        print("Gesture-to-Keyboard Controller")
+        print("=============================")
+        print("Make sure you have a game window open (like Pong) to control!")
+        print("Press 'q' to quit the application")
+        print()
+        
+        if not self.initialize_camera():
+            return
+        
+        self.running = True
+        
+        try:
+            while self.running:
+                ret, frame = self.cap.read()
+                if not ret:
+                    print("Error: Could not read frame from camera")
+                    break
+                
+                # Flip frame horizontally for mirror effect
+                frame = cv2.flip(frame, 1)
+                
+                # Detect hand and get gesture information
+                index_finger_pos, is_fist, annotated_frame = self.hand_detector.detect_hand(frame)
+                
+                # Determine screen region
+                screen_region = 'middle'  # Default
+                if index_finger_pos:
+                    x_pos = index_finger_pos[0]
+                    screen_region = self.hand_detector.get_screen_region(x_pos, frame.shape[1])
+                    
+                    # Handle the gesture
+                    self.gesture_controller.handle_gesture(screen_region, is_fist)
+                else:
+                    # No hand detected, release all keys
+                    self.gesture_controller.release_all_keys()
+                
+                # Draw debug overlay
+                debug_frame = self.draw_debug_overlay(
+                    annotated_frame, index_finger_pos, screen_region, is_fist
+                )
+                
+                # Display the frame
+                cv2.imshow('Gesture Controller', debug_frame)
+                
+                # Check for quit command
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q'):
+                    self.running = False
+                elif key == ord('r'):
+                    # Reset all keys
+                    self.gesture_controller.release_all_keys()
+                    print("Reset: All keys released")
+        
+        except KeyboardInterrupt:
+            print("\nApplication interrupted by user")
+        
+        finally:
+            self.cleanup()
+    
+    def cleanup(self):
+        """Clean up resources."""
+        print("Cleaning up...")
+        
+        if self.gesture_controller:
+            self.gesture_controller.cleanup()
+        
+        if self.cap:
+            self.cap.release()
+        
+        cv2.destroyAllWindows()
+        print("Cleanup complete")
+
+def main():
+    """Main entry point."""
+    app = GestureToKeyboardApp()
+    app.run()
+
+if __name__ == "__main__":
+    main()
