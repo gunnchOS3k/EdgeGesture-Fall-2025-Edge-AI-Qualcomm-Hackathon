@@ -8,7 +8,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://python.org)
 [![React](https://img.shields.io/badge/React-18.2.0-blue?style=flat&logo=react&logoColor=white)](https://reactjs.org)
-[![OpenAI Whisper](https://img.shields.io/badge/Whisper-ASR-green?style=flat&logo=openai&logoColor=white)](https://github.com/openai/whisper)
+[![Qualcomm Whisper](https://img.shields.io/badge/Whisper-ASR-green?style=flat&logo=openai&logoColor=white)](https://github.com/thatrandomfrenchdude/simple-whisper-transcription)
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand%20Tracking-orange?style=flat&logo=google&logoColor=white)](https://mediapipe.dev)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX-Runtime-red?style=flat&logo=microsoft&logoColor=white)](https://onnxruntime.ai)
 
