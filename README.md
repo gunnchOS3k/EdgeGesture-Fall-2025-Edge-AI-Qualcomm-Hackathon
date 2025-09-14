@@ -54,8 +54,8 @@ graph TB
         H --> J[Game Controller]
         I --> J
         J --> K[Pong Game]
-        J --> L[Galaga Shooter]
-        J --> M[Karaoke/Rhythm]
+        J --> L[Fruit Ninja]
+        J --> M[Racing]
     end
     
     subgraph "System Integration"
@@ -78,7 +78,7 @@ graph TB
 ### 🤖 AI & Machine Learning
 | Technology | Version | Purpose | License |
 |------------|---------|---------|---------|
-| **OpenAI Whisper** | 20231117+ | Speech-to-text transcription | MIT |
+| **Qualcomm Whisper** | 20231117+ | Speech-to-text transcription | MIT |
 | **ONNX Runtime** | 1.12.0+ | Optimized model inference | MIT |
 | **MediaPipe** | 0.10.0+ | Hand tracking & gesture recognition | Apache 2.0 |
 | **PyTorch** | 1.12.0+ | Deep learning framework | BSD |
