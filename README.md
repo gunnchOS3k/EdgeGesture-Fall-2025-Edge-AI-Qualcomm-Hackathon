@@ -117,6 +117,13 @@ graph TB
 ---
 
 ## 📁 Project Structure
+## 🔽 Download & Setup
+
+1. **Download the archive**  
+   Download the file named `run1_final.zip` from the provided source.
+
+2. **Unzip the file**  
+   Extract the contents of `run1_final.zip` using your prefer
 
 ```
 EdgeGesture-Fall-2025-Edge-AI-Qualcomm-Hackathon/
