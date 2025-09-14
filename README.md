@@ -26,7 +26,7 @@ EdgeGesture is a comprehensive **voice- and gesture-controlled mini-arcade** des
 
 - **🎤 Voice Control**: Real-time speech recognition using OpenAI Whisper
 - **👋 Gesture Control**: Hand tracking and gesture recognition via MediaPipe
-- **🎯 Multi-Game Support**: 3 classic arcade games (Pong, Galaga-style shooter, Karaoke/Rhythm)
+- **🎯 Multi-Game Support**: 3 classic arcade games (Pong, Racing, Fruit Ninja)
 - **⚡ Edge AI Optimized**: ONNX Runtime for efficient on-device processing
 - **🔒 Privacy-First**: All processing happens locally, no cloud dependencies
 - **📱 Cross-Platform**: Works on macOS, Linux, and Windows
