@@ -433,10 +433,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 👥 Team & Acknowledgments
 
 ### 🧑‍💻 Development Team
-- **Edmund Gunn, Jr.** ([@gunnchOS3k](https://github.com/gunnchOS3k)) - Lead Developer
+- **Deeptanshu** ([@deeptanshu20371](https://github.com/deeptanshu20371)) - Full Stack Development + Computer Vision
+- **Dev Thakkar** ([@Devthakkar14](https://github.com/Devthakkar14)) - Full Stack Development + Computer Vision
 - **Ronit Gehani** ([@Ronit28G](https://github.com/Ronit28G)) - AI Integration
-- **Deeptanshu** ([@deeptanshu20371](https://github.com/deeptanshu20371)) - Computer Vision
-- **Dev Thakkar** ([@Devthakkar14](https://github.com/Devthakkar14)) - Frontend Development
+- **Edmund Gunn, Jr.** ([@gunnchOS3k](https://github.com/gunnchOS3k)) - Frontend Developer
 
 ### 🙏 Acknowledgments
 - **OpenAI** for the Whisper speech recognition model
