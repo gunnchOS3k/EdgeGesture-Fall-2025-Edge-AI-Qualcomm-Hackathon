@@ -21,6 +21,7 @@
 ## 🎯 Project Overview
 
 EdgeGesture is a comprehensive **voice- and gesture-controlled mini-arcade** designed for ARM PCs, developed for the **Qualcomm Edge AI Hackathon Fall 2025**. The system combines multiple AI technologies to create an immersive, hands-free gaming experience that runs entirely offline with low latency and privacy preservation.
+Slides: https://drive.google.com/file/d/1N8a1mTai5gvD66YEYNbLGJd6u0mkr9SO/view?usp=drivesdk
 
 ### 🎮 Core Features
 
