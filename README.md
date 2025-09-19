@@ -12,7 +12,7 @@
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand%20Tracking-orange?style=flat&logo=google&logoColor=white)](https://mediapipe.dev)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX-Runtime-red?style=flat&logo=microsoft&logoColor=white)](https://onnxruntime.ai)
 
-*Fusing on-device KWS/Whisper ASR via ONNX Runtime with hand-tracking to run 3 games—Pong, Fruit Ninga, and a racing game-entirely offline*
+*Fusing on-device KWS/Whisper ASR via ONNX Runtime with hand-tracking to run 3 games—Pong, Fruit Ninja, and a racing game-entirely offline*
 
 </div>
 
